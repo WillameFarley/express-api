@@ -1,7 +1,9 @@
 const express = require('express');
-const res = require('express/lib/response');
 
-const app = express ();
+const app = express();
+
+app.use(express.json());
+
 let usuarios = [];
 
 app.get('/usuarios', (req, res) => {
@@ -11,20 +13,42 @@ app.get('/usuarios', (req, res) => {
 app.post('/usuarios', (req, res) => {
     const { nome, sobrenome } = req.body;
 
-    console.log("nome:", nome, "sobrenome:", sobrenome);
-
     const usuario = {
-        nome: nome,
-        sobrenome: sobrenome
+        nome,
+        sobrenome
     }
 
     usuarios.push(usuario);
 
     return res.json(usuario);
-    
 });
 
+app.patch('/usuarios/:nome', (req, res)=> {
+    const { nome } = req.params;
 
+    const { nome: novoNome, sobrenome: novoSobrenome } = req.body;
+
+    let usuario = usuarios.find((usu) => usu.nome === nome);
+  
+    if (novoNome) {
+        usuario.nome = novoNome;
+    }
+    if (novoSobrenome) {
+        usuario.sobrenome = novoSobrenome;
+    }
+
+    res.json(usuarios);
+});
+
+app.delete('/usuarios/:nome', (req, res) => {
+    const { nome } = req.params;
+  
+    const novaLista = usuarios.filter((usu) => usu.nome !== nome);
+    usuarios = novaLista;
+  
+    res.json(usuarios);
+});
+  
 app.listen(3000, () => {
     console.log('Servidor aberto na porta 3000');
 });
